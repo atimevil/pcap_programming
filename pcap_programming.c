@@ -14,13 +14,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
         // Ethernet Header 정보 출력
         printf("Ethernet Header:\n");
-        printf("  Source MAC: ");
+        printf("Source MAC: ");
         for (int i = 0; i < 6; i++)
         {
             printf("%02x:", eth->ether_shost[i]);
         }
         printf("\n");
-        printf("  Destination MAC: ");
+        printf("Destination MAC: ");
         for (int i = 0; i < 6; i++)
         {
             printf("%02x:", eth->ether_dhost[i]);
@@ -33,16 +33,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         inet_ntop(AF_INET, &(ip->iph_sourceip), src_ip, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(ip->iph_destip), dst_ip, INET_ADDRSTRLEN);
         printf("IP Header:\n");
-        printf("  Source IP: %s\n", src_ip);
-        printf("  Destination IP: %s\n", dst_ip);
+        printf("Source IP: %s\n", src_ip);
+        printf("Destination IP: %s\n", dst_ip);
 
         // TCP Header 정보 출력
         if (ip->iph_protocol == IPPROTO_TCP)
         {
             struct tcpheader *tcp = (struct tcpheader *)(packet + sizeof(struct ethheader) + (ip->iph_ihl * 4));
             printf("TCP Header:\n");
-            printf("  Source Port: %d\n", ntohs(tcp->tcp_sport));
-            printf("  Destination Port: %d\n", ntohs(tcp->tcp_dport));
+            printf("Source Port: %d\n", ntohs(tcp->tcp_sport));
+            printf("Destination Port: %d\n", ntohs(tcp->tcp_dport));
 
             /// Message 출력 (적당한 길이로)
             int payload_len = ntohs(ip->iph_len) - (sizeof(struct ethheader) + (ip->iph_ihl * 4) + TH_OFF(tcp) * 4);
