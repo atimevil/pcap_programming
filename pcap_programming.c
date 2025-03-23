@@ -4,25 +4,23 @@
 #include "myheader.h"
 #include <stdlib.h>
 
-void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
-{
+void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
     struct ethheader *eth = (struct ethheader *)packet;
 
-    if (ntohs(eth->ether_type) == 0x0800)
-    { // 0x0800 is IP type
+    if (ntohs(eth->ether_type) == 0x0800) { // 0x0800 is IP type
         struct ipheader *ip = (struct ipheader *)(packet + sizeof(struct ethheader));
+
+        printf("Packet Captured!\n");
 
         // Ethernet Header 정보 출력
         printf("Ethernet Header:\n");
         printf("Source MAC: ");
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             printf("%02x:", eth->ether_shost[i]);
         }
         printf("\n");
         printf("Destination MAC: ");
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             printf("%02x:", eth->ether_dhost[i]);
         }
         printf("\n");
@@ -37,20 +35,18 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         printf("Destination IP: %s\n", dst_ip);
 
         // TCP Header 정보 출력
-        if (ip->iph_protocol == IPPROTO_TCP)
-        {
+        if (ip->iph_protocol == IPPROTO_TCP) {
             struct tcpheader *tcp = (struct tcpheader *)(packet + sizeof(struct ethheader) + (ip->iph_ihl * 4));
+
             printf("TCP Header:\n");
             printf("Source Port: %d\n", ntohs(tcp->tcp_sport));
             printf("Destination Port: %d\n", ntohs(tcp->tcp_dport));
 
-            /// Message 출력 (적당한 길이로)
+            // Message 출력 (적당한 길이로)
             int payload_len = ntohs(ip->iph_len) - (sizeof(struct ethheader) + (ip->iph_ihl * 4) + TH_OFF(tcp) * 4);
-            if (payload_len > 0)
-            {
+            if (payload_len > 0) {
                 printf("Got the TCP Packet\n");
-                for (int i = 0; i < payload_len && i < 100; i++)
-                {
+                for (int i = 0; i < payload_len && i < 100; i++) {
                     printf("%c", *(packet + sizeof(struct ethheader) + (ip->iph_ihl * 4) + TH_OFF(tcp) * 4 + i));
                 }
                 printf("\n");
@@ -58,6 +54,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         }
     }
 }
+
 
 int main()
 {
